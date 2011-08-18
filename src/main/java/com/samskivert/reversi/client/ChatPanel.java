@@ -86,7 +86,7 @@ public class ChatPanel extends JPanel
         _text.setOpaque(false);
         _text.setEditable(false);
 
-        // we need to create an ultra-custom scroll pane (TODO: still needed?)
+        // we need to create a custom scroll pane so that we work properly on a ManagedJFrame
         add(new JScrollPane(_text) {
             @Override
             protected JViewport createViewport () {
