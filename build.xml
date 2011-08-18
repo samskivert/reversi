@@ -1,0 +1,91 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- build configuration -->
+<project name="reversi" default="compile" xmlns:artifact="urn:maven-artifact-ant">
+  <property name="deploy.dir"   location="target"/>
+  <property name="src.dir"      location="src/main/java"/>
+  <property name="classes.dir"  location="${deploy.dir}/classes"/>
+
+  <property name="ooo-build.vers" value="2.5"/>
+  <ant antfile="etc/bootstrap.xml"/>
+  <import file="${user.home}/.m2/ooo-build/${ooo-build.vers}/ooo-build.xml"/>
+
+  <target name="-prepare" depends="-init-ooo">
+    <mavendep pom="pom.xml"/>
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${classes.dir}"/>
+    <path id="built.classpath">
+      <path refid="pom.xml.path"/>
+      <pathelement location="${classes.dir}"/>
+    </path>
+  </target>
+
+  <target name="-preptools" depends="-prepare">
+    <artifact:dependencies pathId="tools.classpath">
+      <dependency groupId="com.threerings" artifactId="narya-tools" version="1.8"/>
+    </artifact:dependencies>
+    <taskdef resource="com/threerings/presents/tools.properties" classpathref="tools.classpath"/>
+  </target>
+
+  <target name="clean" depends="-init-ooo" description="Deletes all generated files.">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <target name="compile" depends="-prepare" description="Builds the Java code.">
+    <copy todir="${classes.dir}"><fileset dir="src/main/resources" includes="**"/></copy>
+    <ooojavac version="1.6" srcdir="${src.dir}" destdir="${classes.dir}"
+              classpathref="pom.xml.path"/>
+  </target>
+
+  <target name="package" depends="-preptools,compile" description="Builds jar files.">
+    <!-- instrument the Streamable classes so that they can be used in an applet -->
+    <instream outdir="${classes.dir}">
+      <path refid="built.classpath"/>
+      <fileset dir="${classes.dir}" includes="**/*.class"/>
+    </instream>
+    <!-- package up the results into a jar file (TODO: split client and server) -->
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar">
+      <fileset dir="${classes.dir}" includes="**"/>
+    </jar>
+  </target>
+
+  <target name="gendobj" depends="-preptools"
+          description="Generates additional methods for distributed object classes.">
+    <ooojavac srcdir="${src.dir}" destdir="${classes.dir}" version="1.6"
+              classpathref="built.classpath">
+      <include name="**/*Object.java"/>
+    </ooojavac>
+    <gendobj classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/*Object.java"/>
+    </gendobj>
+  </target>
+
+  <target name="genservice" depends="-preptools"
+          description="Generates marshaller and dispatcher classes for all invocation services">
+    <ooojavac srcdir="${src.dir}" destdir="${classes.dir}" version="1.6"
+              classpathref="built.classpath">
+      <include name="**/*Service.java"/>
+    </ooojavac>
+    <genservice header="etc/SOURCE_HEADER" classpathref="built.classpath">
+      <fileset dir="${src.dir}">
+        <include name="**/client/*Service.java"/>
+      </fileset>
+    </genservice>
+  </target>
+
+  <target name="server" depends="compile" description="Runs the server.">
+    <java classname="com.samskivert.reversi.server.SimpleServer" classpathref="built.classpath"/>
+  </target>
+
+  <target name="client" depends="compile" description="Runs the client.">
+    <fail unless="username">
+      Please specify a username: ant -Dusername=who client
+    </fail>
+    <java fork="true" classname="com.samskivert.reversi.client.SimpleApp"
+          classpathref="built.classpath">
+      <arg value="localhost"/>
+      <arg value="47624"/>
+      <arg value="${username}"/>
+      <arg value="passwordignored"/>
+    </java>
+  </target>
+</project>
