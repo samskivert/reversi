@@ -4,7 +4,10 @@
 
 package com.samskivert.reversi.client;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
 
@@ -25,10 +28,19 @@ public class ClientController extends Controller
 
         // we want to know about logon/logoff
         _ctx.getClient().addClientObserver(new ClientAdapter() {
+            @Override public void clientDidLogon (Client client) {
+                sclient.setMainPanel(_waitingPanel);
+            }
             @Override public void clientDidLogoff (Client client) {
                 sclient.setMainPanel(_logonPanel);
             }
         });
+
+        // create a panel that we'll display when we're waiting for a match
+        _waitingPanel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel("Waiting for opponent(s)...");
+        label.setHorizontalAlignment(JLabel.CENTER);
+        _waitingPanel.add(label, BorderLayout.CENTER);
 
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx, sclient);
@@ -53,5 +65,6 @@ public class ClientController extends Controller
     }
 
     protected SimpleContext _ctx;
+    protected JPanel _waitingPanel;
     protected LogonPanel _logonPanel;
 }

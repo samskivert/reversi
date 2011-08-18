@@ -11,7 +11,6 @@ import com.google.inject.Singleton;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.PresentsSession;
 
 import com.threerings.crowd.client.PlaceController;
 import com.threerings.crowd.data.BodyObject;
@@ -57,11 +56,14 @@ public class SimpleServer extends CrowdServer
         // register ourselves as providing the toybox service
         _invmgr.registerProvider(new SimpleProvider() {
             public void clientReady (ClientObject caller) {
-                if (_waiter == null) {
-                    _waiter = ((BodyObject)caller).getVisibleName();
+                // if we have no waiter, or our waiter logged off, make this player wait (note:
+                // this doesn't handle disconnected players, a real match making service should be
+                // more robust)
+                if (_waiter == null || !_waiter.isActive()) {
+                    _waiter = (BodyObject)caller;
                 } else {
                     final Name[] players = new Name[] {
-                        _waiter, ((BodyObject)caller).getVisibleName()
+                        _waiter.getVisibleName(), ((BodyObject)caller).getVisibleName()
                     };
                     try {
                         // create the game location and it will take over from here
@@ -71,7 +73,7 @@ public class SimpleServer extends CrowdServer
                     }
                 }
             }
-            protected Name _waiter;
+            protected BodyObject _waiter;
         }, SimpleMarshaller.class, SimpleService.GROUP);
 
         log.info("Simple server initialized.");

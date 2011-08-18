@@ -12,7 +12,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -41,7 +40,6 @@ import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 
-import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.ChatDisplay;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
@@ -88,7 +86,7 @@ public class ChatPanel extends JPanel
         _text.setOpaque(false);
         _text.setEditable(false);
 
-        // we need to create an ultra-custom scroll pane (TODO: still?)
+        // we need to create an ultra-custom scroll pane (TODO: still needed?)
         add(new JScrollPane(_text) {
             @Override
             protected JViewport createViewport () {
@@ -104,13 +102,6 @@ public class ChatPanel extends JPanel
                             ((JComponent)c).revalidate();
                         }
                     }
-                    // @Override
-                    // public void paintComponent (Graphics g) {
-                    //     super.paintComponent(g);
-                    //     // start with the light blue background
-                    //     // g.setColor(ToyBoxUI.LIGHT_BLUE);
-                    //     g.fillRect(0, 0, getWidth(), getHeight());
-                    // }
                 };
                 vp.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
                 return vp;
@@ -121,7 +112,7 @@ public class ChatPanel extends JPanel
         createStyles(_text);
 
         // add a label for the text entry stuff
-        String htext = _ctx.xlate(CHAT_MSGS, "m.chat_help");
+        String htext = _ctx.xlate(CHAT_MSGS, "m.chat_label");
         if (!horizontal) {
             add(new JLabel(htext), GroupLayout.FIXED);
         }
@@ -156,18 +147,6 @@ public class ChatPanel extends JPanel
                 }
             }
         });
-    }
-
-    /**
-     * For applications where the chat box has extremely limited space, the send button can be
-     * removed to leave more space for the text input box.
-     *
-     * @deprecated Pass non-horizontal to the constructor instead.
-     */
-    @Deprecated public void removeSendButton ()
-    {
-        // this is now handled by specifying a horizontal or vertical
-        // layout when creating the chat panel
     }
 
     /**

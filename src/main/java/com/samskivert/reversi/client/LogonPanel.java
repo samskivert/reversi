@@ -5,11 +5,8 @@
 package com.samskivert.reversi.client;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,8 +26,6 @@ import com.threerings.util.MessageBundle;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.LogonException;
-
-import static com.samskivert.reversi.Log.log;
 
 public class LogonPanel extends JPanel
     implements ActionListener, ClientObserver
