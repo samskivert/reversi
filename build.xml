@@ -21,7 +21,8 @@
 
   <target name="-preptools" depends="-prepare">
     <artifact:dependencies pathId="tools.classpath">
-      <dependency groupId="com.threerings" artifactId="narya-tools" version="1.8"/>
+      <dependency groupId="javassist" artifactId="javassist" version="3.8.0.GA"/>
+      <dependency groupId="com.threerings" artifactId="narya" version="1.8"/>
     </artifact:dependencies>
     <taskdef resource="com/threerings/presents/tools.properties" classpathref="tools.classpath"/>
   </target>
