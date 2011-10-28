@@ -89,4 +89,10 @@
       <arg value="passwordignored"/>
     </java>
   </target>
+
+  <target name="copydeps" depends="-prepare" description="Copies dependencies into target/depends.">
+    <copy todir="${deploy.dir}/depends" flatten="true">
+      <fileset refid="pom.xml.fileset"/>
+    </copy>
+  </target>
 </project>
